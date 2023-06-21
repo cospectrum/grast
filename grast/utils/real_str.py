@@ -33,7 +33,7 @@ def unary_postfix(expr: R, throw: bool = False) -> Callable[[str], str]:
 
 @dataclass
 class RealStr:
-    expr: R
+    real: R
 
     @classmethod
     def unary_fn(cls, expr: R) -> str:
@@ -42,7 +42,7 @@ class RealStr:
         return f(real_str(expr.arg))
 
     def __repr__(self) -> str:
-        return RealStr.to_str(self.expr)
+        return self.to_str()
 
     @classmethod
     def binary_fn(cls, expr: R) -> str:
@@ -59,8 +59,9 @@ class RealStr:
 
         raise TypeError
 
-    @classmethod
-    def to_str(cls, expr: R) -> str:
+    def to_str(self) -> str:
+        cls = RealStr
+        expr = self.real
         match expr:
             case re.UnaryFn(_):
                 return cls.unary_fn(expr)

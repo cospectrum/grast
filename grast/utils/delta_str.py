@@ -13,11 +13,11 @@ class DeltaStr:
     zero: str = "0"
 
     def __repr__(self) -> str:
-        return self.to_str(self.delta)
+        return self.to_str()
 
-    @classmethod
-    def to_str(cls, expr: D) -> str:
-        match expr:
+    def to_str(self) -> str:
+        cls = DeltaStr
+        match self.delta:
             case d.Zero():
                 return cls.zero
 
@@ -41,7 +41,7 @@ class DeltaStr:
 
 
 def delta_str(delta: D, with_brackets: bool = True) -> str:
-    s = DeltaStr.to_str(delta)
+    s = str(DeltaStr(delta))
     if with_brackets:
         s = s if is_atom(delta) else brackets(s)
     return s
