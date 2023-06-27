@@ -12,7 +12,10 @@ T = TypeVar("T")
 
 
 class Delta:
-    pass
+    def to_str(self) -> str:
+        import grast.utils as utils
+
+        return utils.to_str(self)
 
 
 D = Delta
