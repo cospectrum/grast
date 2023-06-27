@@ -1,4 +1,4 @@
-from .expression import BinaryFn as BF
+from .real import BinaryFn as BF
 
 
 class Add(BF):

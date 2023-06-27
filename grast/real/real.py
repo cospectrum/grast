@@ -1,10 +1,9 @@
-from __future__ import annotations
 from dataclasses import dataclass
 from typing import Generic, TypeVar
 
 
 __all__ = [
-    "Expression",
+    "Real",
     "Value",
     "Var",
     "Const",
@@ -16,11 +15,11 @@ __all__ = [
 T = TypeVar("T")
 
 
-class Expression:
+class Real:
     pass
 
 
-E = Expression
+E = Real
 
 
 @dataclass

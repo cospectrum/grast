@@ -6,7 +6,7 @@ from .real import Algebra as ra
 from typing import Callable, Hashable
 
 
-R = re.Expression
+R = re.Real
 D = de.Delta
 Grad = dict[Hashable, R]
 

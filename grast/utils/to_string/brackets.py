@@ -1,9 +1,10 @@
-from typing import Any
 import grast.real as re
 import grast.delta as de
 
-from grast.real import Expression as R
+from grast.real import Real as R
 from grast.delta import Delta as D
+
+from typing import Any
 
 
 def brackets(s: str, left_bracket: str = "(", right_bracket: str = ")") -> str:

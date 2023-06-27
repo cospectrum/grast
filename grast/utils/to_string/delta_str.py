@@ -1,7 +1,7 @@
 import grast.delta as d
-from dataclasses import dataclass
 
-from ..delta import Delta as D
+from grast.delta import Delta as D
+from dataclasses import dataclass
 
 from .real_str import real_str
 from .brackets import brackets, is_atom
@@ -19,7 +19,7 @@ class DeltaStr:
         cls = DeltaStr
         match self.delta:
             case d.Zero():
-                return cls.zero
+                return self.zero
 
             case d.OneHot(var):
                 return f"d{var.val}"

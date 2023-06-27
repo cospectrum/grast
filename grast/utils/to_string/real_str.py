@@ -2,7 +2,7 @@ import grast.real as re
 import grast.real.unary as uf
 import grast.real.binary as bf
 
-from grast.real import Expression as R
+from grast.real import Real as R
 
 from typing import Callable
 from dataclasses import dataclass

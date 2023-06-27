@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import grast.real as re
 
+
 from typing import Hashable
 from dataclasses import dataclass
 
 from .real import Algebra as ra
-from .real import Expression as R
+from .real import Real as R
 from .delta import (
     Delta as D,
     OneHot,

@@ -7,12 +7,13 @@ from .delta import (
     Delta as D,
 )
 
-from ..real import Expression as R
+from ..real import Real as R
+from ..real import Algebra as ra
 
 
 class Algebra:
-    @staticmethod
-    def add(left: D, right: D) -> D:
+    @classmethod
+    def add(cls, left: D, right: D) -> D:
         match left, right:
             case Zero(), Zero():
                 return Zero()
@@ -20,6 +21,8 @@ class Algebra:
                 return left
             case Zero(), _:
                 return right
+            case _, Neg(delta):
+                return cls.sub(left, delta)
             case _:
                 return Add(left, right)
 
@@ -37,11 +40,13 @@ class Algebra:
             case _:
                 return Sub(left, right)
 
-    @staticmethod
-    def scale(real: R, delta: D) -> D:
+    @classmethod
+    def scale(cls, real: R, delta: D) -> D:
         match delta:
             case Zero():
                 return Zero()
+            case Scale(scalar, inner):
+                return cls.scale(ra.mul(real, scalar), inner)
             case _:
                 return Scale(real, delta)
 

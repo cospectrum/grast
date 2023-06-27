@@ -1,4 +1,4 @@
-from .expression import UnaryFn as UF
+from .real import UnaryFn as UF
 
 
 class Neg(UF):

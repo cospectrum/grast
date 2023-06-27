@@ -1,5 +1,5 @@
 import grast.real as re
-from .expression import Expression as R
+from .real import Real as R
 
 
 class Algebra:
