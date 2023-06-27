@@ -43,6 +43,8 @@ class Eval:
                 case de.Scale(scalar, expr):
                     if self.real == One:
                         real = scalar
+                    elif scalar == One:
+                        real = self.real
                     else:
                         real = ra.mul(self.real, scalar)
                     Eval(real)(expr)(grad)
@@ -52,7 +54,7 @@ class Eval:
                     Eval(real)(expr)(grad)
 
                 case de.Add(left, right):
-                    self(right)(self(left)(grad))
+                    self(left)(self(right)(grad))
 
                 case de.Sub(left, right):
                     self(left)(self(de.Neg(right))(grad))

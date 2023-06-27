@@ -1,6 +1,7 @@
-from grast.delta.delta import OneHot
+from grast.delta import OneHot
 
-from grast import var, const, Dual
+from grast import var, const
+from grast.dual import Dual
 from grast.real import Add, Mul, Const, Var
 
 

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import grast.real as re
 
-
 from typing import Hashable
 from dataclasses import dataclass
 
@@ -15,6 +14,8 @@ from .delta import (
     Algebra as da,
 )
 
+from .eval_grad import Grad, Eval
+
 
 T = Hashable
 
@@ -23,6 +24,10 @@ T = Hashable
 class Dual:
     real: R
     delta: D
+
+    def grad(self, one: R | None = None) -> Grad:
+        delta = self.delta
+        return Eval(one).grad(delta)
 
     @property
     def tup(self) -> tuple[R, D]:
@@ -52,9 +57,10 @@ class Dual:
         a, b = self.tup
         c, d = other.tup
         r = ra.div(a, c)
-        num = da.sub(da.scale(c, b), da.scale(a, d))
-        scalar = ra.inv(ra.mul(c, c))
-        delta = da.scale(scalar, num)
+        first = da.scale(ra.inv(c), b)
+        num = da.scale(a, d)
+        second = da.scale(ra.inv(ra.mul(c, c)), num)
+        delta = da.sub(first, second)
         return Dual(r, delta)
 
 

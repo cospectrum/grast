@@ -56,7 +56,8 @@ class RealStr:
                 return f"{real_str(left)} * {real_str(right)}"
             case bf.Sub:
                 return f"{cls(left)} - {real_str(right)}"
-
+            case bf.Div:
+                return f"{real_str(left)} / {real_str(right)}"
         raise TypeError
 
     def to_str(self) -> str:
@@ -69,8 +70,7 @@ class RealStr:
                 return cls.binary_fn(expr)
             case re.Value(_):
                 return str(expr)
-            case _:
-                return str(expr)
+        raise TypeError
 
 
 def real_str(real: R, with_brackets: bool = True) -> str:
