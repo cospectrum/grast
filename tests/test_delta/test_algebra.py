@@ -1,6 +1,3 @@
-from grast.real import Algebra as ra
-
-from grast.delta import Algebra as A
 from grast.delta import Add, OneHot
 
 from grast import one_hot
@@ -17,29 +14,28 @@ Z = one_hot("z")
 
 
 def test_add() -> None:
-    add = A.add(X, Y)
+    add = X.add(Y)
     assert add == Add(X, OneHot(Var("y")))
-    assert A.add(add, Z) == Add(add, Z)
-    assert A.add(X, A.neg(Y)) == Sub(X, Y)
+    assert add.add(Z) == Add(add, Z)
+    assert X.add(Y.neg()) == Sub(X, Y)
 
 
 def test_scale() -> None:
-    s = A.scale(R1, X)
+    s = X.scale(R1)
     assert s == Scale(R1, X)
-    p = A.scale(R2, s)
+    p = s.scale(R2)
 
-    tmp = ra.mul(R2, R1)
+    tmp = R2.mul(R1)
     assert p == Scale(tmp, X)
-    assert A.scale(R3, p) == Scale(ra.mul(R3, tmp), X)
+    assert p.scale(R3) == Scale(R3.mul(tmp), X)
 
 
 def test_neg() -> None:
-    assert A.neg(X) == Neg(X)
-    assert A.neg(A.neg(X)) == X
-    assert A.neg(Neg(Neg(X))) == Neg(X)
+    assert X.neg() == Neg(X)
+    assert X.neg().neg() == X
+    assert Neg(Neg(X)).neg() == Neg(X)
 
 
 def test_sub() -> None:
-    sub = A.sub(X, Y)
-    assert sub == Sub(X, Y)
-    assert A.sub(X, Neg(Z)) == Add(X, Z)
+    assert X.sub(Y) == Sub(X, Y)
+    assert X.sub(Neg(Z)) == Add(X, Z)

@@ -68,8 +68,8 @@ class Dual:
         return Dual(a.ln(), b.scale(a.inv()))
 
 
-def var(val: str) -> Dual:
-    real = re.Var(val=val)
+def var(key: str) -> Dual:
+    real = re.Var(val=key)
     delta = OneHot(var=real)
     return Dual(real, delta)
 
