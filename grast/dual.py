@@ -27,43 +27,67 @@ class Dual:
         delta = self.delta
         return Eval(one).grad(delta)
 
+    def eval_grad(self, **kwargs: float) -> dict[str, float]:
+        grad = self.grad()
+        return {k: grad[k](**kwargs) for k in grad}
+
     def to_str(self) -> str:
         return self.real.to_str()
 
-    def __add__(self, other: Dual) -> Dual:
+    def __add__(self, other: Dual | Any) -> Dual:
+        other = wrap(other)
         a, b = self.tup
         c, d = other.tup
         return Dual(a.add(c), b.add(d))
 
-    def __sub__(self, other: Dual) -> Dual:
+    def __radd__(self, other: Dual | Any) -> Dual:
+        return wrap(other) + self
+
+    def __sub__(self, other: Dual | Any) -> Dual:
+        other = wrap(other)
         a, b = self.tup
         c, d = other.tup
         return Dual(a.sub(c), b.sub(d))
+
+    def __rsub__(self, other: Dual | Any) -> Dual:
+        return wrap(other) - self
 
     def __neg__(self) -> Dual:
         a, b = self.tup
         return Dual(a.neg(), b.neg())
 
-    def __mul__(self, other: Dual) -> Dual:
+    def __mul__(self, other: Dual | Any) -> Dual:
+        other = wrap(other)
         a, b = self.tup
         c, d = other.tup
         delta = d.scale(a).add(b.scale(c))
         return Dual(a.mul(c), delta)
 
-    def __truediv__(self, other: Dual) -> Dual:
+    def __rmul__(self, other: Dual | Any) -> Dual:
+        return wrap(other) * self
+
+    def __truediv__(self, other: Dual | Any) -> Dual:
+        other = wrap(other)
         a, b = self.tup
         c, d = other.tup
         first = b.scale(c.inv())
         second = d.scale(a).scale(c.mul(c).inv())
         return Dual(a.div(c), first.sub(second))
 
-    def __pow__(self, other: Dual) -> Dual:
+    def __rtruediv__(self, other: Dual | Any) -> Dual:
+        return wrap(other) / self
+
+    def __pow__(self, other: Dual | Any) -> Dual:
+        other = wrap(other)
         a, b = self.tup
         c, d = other.tup
         val = a.pow(c)
         left = b.scale(c.mul(val.div(a)))
         right = d.scale(val.mul(a.ln()))
         return Dual(val, left.add(right))
+
+    def __rpow__(self, other: Dual | Any) -> Dual:
+        return wrap(other) ** self
 
     def ln(self) -> Dual:
         a, b = self.tup
@@ -72,6 +96,12 @@ class Dual:
     @property
     def tup(self) -> tuple[R, D]:
         return self.real, self.delta
+
+
+def wrap(val: Dual | Any) -> Dual:
+    if isinstance(val, Dual):
+        return val
+    return const(val)
 
 
 def var(key: str) -> Dual:

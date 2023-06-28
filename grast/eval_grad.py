@@ -3,12 +3,12 @@ import grast.real as re
 
 from .real import Algebra as ra
 
-from typing import Callable, Hashable
+from typing import Callable
 
 
 R = re.Real
 D = de.Delta
-Grad = dict[Hashable, R]
+Grad = dict[str, R]
 
 
 def add_at(grad: Grad, var: re.Var, real: R) -> None:
