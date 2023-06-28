@@ -22,7 +22,7 @@ class Real:
 
         return utils.to_str(self)
 
-    def eval(self, **kwargs: float) -> float:
+    def __call__(self, **kwargs: float) -> float:
         import grast.forward as forward
 
         return forward.Forward(kwargs)(self)

@@ -20,13 +20,15 @@ class Dual:
     real: R
     delta: D
 
+    def __call__(self, **kwargs: float) -> float:
+        return self.real(**kwargs)
+
     def grad(self, one: R | None = None) -> Grad:
         delta = self.delta
         return Eval(one).grad(delta)
 
-    @property
-    def tup(self) -> tuple[R, D]:
-        return self.real, self.delta
+    def to_str(self) -> str:
+        return self.real.to_str()
 
     def __add__(self, other: Dual) -> Dual:
         a, b = self.tup
@@ -66,6 +68,10 @@ class Dual:
     def ln(self) -> Dual:
         a, b = self.tup
         return Dual(a.ln(), b.scale(a.inv()))
+
+    @property
+    def tup(self) -> tuple[R, D]:
+        return self.real, self.delta
 
 
 def var(key: str) -> Dual:
