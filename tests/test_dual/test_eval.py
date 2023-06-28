@@ -145,3 +145,11 @@ def test_pow() -> None:
     df = f.eval_grad(x=x, y=y)
     assert eq(df["x"], y * x ** (y - 1))
     assert eq(df["y"], x**y * math.log(x))
+
+
+def test_ln() -> None:
+    x = random.random()
+    f = X.ln()
+    assert f(x=x) == math.log(x)
+    df = f.eval_grad(x=x)
+    assert eq(df["x"], 1 / x)
