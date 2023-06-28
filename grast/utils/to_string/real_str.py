@@ -3,32 +3,9 @@ import grast.real.unary as uf
 import grast.real.binary as bf
 
 from grast.real import Real as R
-
-from typing import Callable
 from dataclasses import dataclass
 
 from .brackets import brackets, is_atom
-
-
-def unary_prefix(expr: R) -> Callable[[str], str]:
-    assert isinstance(expr, re.UnaryFn)
-    match expr:
-        case uf.Pos(_):
-            return lambda s: f"{s}"
-        case uf.Neg(e):
-            return lambda s: f"-{s if is_atom(e) else brackets(s)}"
-    return unary_postfix(expr, throw=True)
-
-
-def unary_postfix(expr: R, throw: bool = False) -> Callable[[str], str]:
-    assert isinstance(expr, re.UnaryFn)
-    match expr:
-        case uf.Inv(e):
-            return lambda s: f"{s if is_atom(e) else brackets(s)}^-1"
-        case _:
-            if throw:
-                raise TypeError
-            return unary_prefix(expr)
 
 
 @dataclass
@@ -38,8 +15,15 @@ class RealStr:
     @classmethod
     def unary_fn(cls, expr: R) -> str:
         assert isinstance(expr, re.UnaryFn)
-        f = unary_prefix(expr)
-        return f(real_str(expr.arg))
+        arg = expr.arg
+        match type(expr):
+            case uf.Neg:
+                return f"-{real_str(arg)}"
+            case uf.Inv:
+                return f"{real_str(arg)}^-1"
+
+        name = expr.__class__.__name__.lower()
+        return f"{name}({cls(arg)})"
 
     def __repr__(self) -> str:
         return self.to_str()
@@ -58,7 +42,9 @@ class RealStr:
                 return f"{cls(left)} - {real_str(right)}"
             case bf.Div:
                 return f"{real_str(left)} / {real_str(right)}"
-        raise TypeError
+
+        name = expr.__class__.__name__.lower()
+        return f"{name}({cls(left)}, {cls(right)})"
 
     def to_str(self) -> str:
         cls = RealStr
@@ -68,8 +54,8 @@ class RealStr:
                 return cls.unary_fn(expr)
             case re.BinaryFn(_, _):
                 return cls.binary_fn(expr)
-            case re.Value(_):
-                return str(expr)
+            case re.Value(val):
+                return f"{val}"
         raise TypeError
 
 

@@ -15,3 +15,7 @@ class Mul(BF):
 
 class Div(BF):
     pass
+
+
+class Pow(BF):
+    pass

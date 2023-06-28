@@ -60,3 +60,11 @@ class Algebra:
             case re.Inv(r):
                 return r
         return re.Inv(real)
+
+    @staticmethod
+    def pow(left: R, right: R) -> R:
+        return re.Pow(left, right)
+
+    @staticmethod
+    def ln(real: R) -> R:
+        return re.Ln(real)

@@ -2,22 +2,17 @@ from __future__ import annotations
 
 import grast.real as re
 
-from typing import Hashable
+from typing import Any
 from dataclasses import dataclass
 
-from .real import Algebra as ra
 from .real import Real as R
 from .delta import (
     Delta as D,
     OneHot,
     Zero,
-    Algebra as da,
 )
 
 from .eval_grad import Grad, Eval
-
-
-T = Hashable
 
 
 @dataclass
@@ -36,41 +31,50 @@ class Dual:
     def __add__(self, other: Dual) -> Dual:
         a, b = self.tup
         c, d = other.tup
-        return Dual(ra.add(a, c), da.add(b, d))
+        return Dual(a.add(c), b.add(d))
 
     def __sub__(self, other: Dual) -> Dual:
         a, b = self.tup
         c, d = other.tup
-        return Dual(ra.sub(a, c), da.sub(b, d))
+        return Dual(a.sub(c), b.sub(d))
 
     def __neg__(self) -> Dual:
         a, b = self.tup
-        return Dual(ra.neg(a), da.neg(b))
+        return Dual(a.neg(), b.neg())
 
     def __mul__(self, other: Dual) -> Dual:
         a, b = self.tup
         c, d = other.tup
-        delta = da.add(da.scale(a, d), da.scale(c, b))
-        return Dual(ra.mul(a, c), delta)
+        delta = d.scale(a).add(b.scale(c))
+        return Dual(a.mul(c), delta)
 
     def __truediv__(self, other: Dual) -> Dual:
         a, b = self.tup
         c, d = other.tup
-        r = ra.div(a, c)
-        first = da.scale(ra.inv(c), b)
-        num = da.scale(a, d)
-        second = da.scale(ra.inv(ra.mul(c, c)), num)
-        delta = da.sub(first, second)
-        return Dual(r, delta)
+        first = b.scale(c.inv())
+        second = d.scale(a).scale(c.mul(c).inv())
+        return Dual(a.div(c), first.sub(second))
+
+    def __pow__(self, other: Dual) -> Dual:
+        a, b = self.tup
+        c, d = other.tup
+        val = a.pow(c)
+        left = b.scale(c.mul(val.div(a)))
+        right = d.scale(val.mul(a.ln()))
+        return Dual(val, left.add(right))
+
+    def ln(self) -> Dual:
+        a, b = self.tup
+        return Dual(a.ln(), b.scale(a.inv()))
 
 
-def var(val: T) -> Dual:
+def var(val: str) -> Dual:
     real = re.Var(val=val)
     delta = OneHot(var=real)
     return Dual(real, delta)
 
 
-def const(val: T) -> Dual:
+def const(val: Any) -> Dual:
     real = re.Const(val=val)
     delta = Zero()
     return Dual(real, delta)

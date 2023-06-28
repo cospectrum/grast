@@ -1,3 +1,4 @@
+from __future__ import annotations
 from dataclasses import dataclass
 from typing import Generic, TypeVar
 
@@ -21,16 +22,48 @@ class Real:
 
         return utils.to_str(self)
 
+    def eval(self, **kwargs: float) -> float:
+        import grast.forward as forward
 
-E = Real
+        return forward.Forward(kwargs)(self)
+
+    def add(self, other: Real) -> Real:
+        return A().add(self, other)
+
+    def mul(self, other: Real) -> Real:
+        return A().mul(self, other)
+
+    def sub(self, other: Real) -> Real:
+        return A().sub(self, other)
+
+    def neg(self) -> Real:
+        return A().neg(self)
+
+    def inv(self) -> Real:
+        return A().inv(self)
+
+    def div(self, other: Real) -> Real:
+        return A().div(self, other)
+
+    def pow(self, other: Real) -> Real:
+        return A().pow(self, other)
+
+    def ln(self) -> Real:
+        return A().ln(self)
+
+
+def A():
+    import grast.real.algebra as algebra
+
+    return algebra.Algebra
+
+
+R = Real
 
 
 @dataclass
-class Value(E, Generic[T]):
+class Value(R, Generic[T]):
     val: T
-
-    def __repr__(self) -> str:
-        return f"{self.val}"
 
 
 class Var(Value[T]):
@@ -42,19 +75,11 @@ class Const(Value[T]):
 
 
 @dataclass
-class UnaryFn(E):
-    arg: E
-
-    def __repr__(self) -> str:
-        name = self.__class__.__name__
-        return f"{name}({self.arg})"
+class UnaryFn(R):
+    arg: R
 
 
 @dataclass
-class BinaryFn(E):
-    left: E
-    right: E
-
-    def __repr__(self) -> str:
-        name = self.__class__.__name__
-        return f"{name}({self.left}, {self.right})"
+class BinaryFn(R):
+    left: R
+    right: R

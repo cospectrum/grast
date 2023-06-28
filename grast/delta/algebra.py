@@ -8,7 +8,6 @@ from .delta import (
 )
 
 from ..real import Real as R
-from ..real import Algebra as ra
 
 
 class Algebra:
@@ -46,7 +45,7 @@ class Algebra:
             case Zero():
                 return Zero()
             case Scale(scalar, inner):
-                return cls.scale(ra.mul(real, scalar), inner)
+                return cls.scale(real.mul(scalar), inner)
             case _:
                 return Scale(real, delta)
 

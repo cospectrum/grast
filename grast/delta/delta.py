@@ -17,6 +17,24 @@ class Delta:
 
         return utils.to_str(self)
 
+    def scale(self, scalar: Real) -> Delta:
+        return A().scale(scalar, self)
+
+    def neg(self) -> Delta:
+        return A().neg(self)
+
+    def add(self, other: Delta) -> Delta:
+        return A().add(self, other)
+
+    def sub(self, other: Delta) -> Delta:
+        return A().sub(self, other)
+
+
+def A():
+    import grast.delta.algebra as algebra
+
+    return algebra.Algebra
+
 
 D = Delta
 

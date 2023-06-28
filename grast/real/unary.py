@@ -5,9 +5,9 @@ class Neg(UF):
     pass
 
 
-class Pos(UF):
+class Inv(UF):
     pass
 
 
-class Inv(UF):
+class Ln(UF):
     pass
