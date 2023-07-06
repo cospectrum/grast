@@ -1,8 +1,11 @@
-from typing import Any, TypeVar
-from grast.delta import Delta
+from .real import Real as Real
+from .delta import Delta as Delta
 
-from .dual import Dual, var as var
-from .dual import const as const
+from .dual import (
+    Dual,
+    var as var,
+    const as const,
+)
 
 from .cfg import Cfg as Cfg
 
@@ -10,14 +13,8 @@ from .cfg import Cfg as Cfg
 __all__ = [
     "Cfg",
     "Dual",
+    "Real",
+    "Delta",
     "var",
     "const",
-    "one_hot",
 ]
-
-
-T = TypeVar("T", bound=Any)
-
-
-def one_hot(key: str) -> Delta[T]:
-    return var(key).delta

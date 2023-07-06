@@ -18,7 +18,6 @@ y = var('y')
 
 f = x/y + y**x
 df = f.grad()
-
 df_dx = df['x']
 df_dy = df['y']
 

@@ -142,15 +142,29 @@ def test_pow() -> None:
     assert eq(df["x"], a**x * math.log(a))
 
     f = X**Y
-    assert eq(f(dict(x=x, y=y)), x**y)
-    df = f.eval_grad(dict(x=x, y=y))
+    args = dict(x=x, y=y)
+    assert eq(f(args), x**y)
+    df = f.eval_grad(args)
     assert eq(df["x"], y * x ** (y - 1))
     assert eq(df["y"], x**y * math.log(x))
+
+
+def test_poly() -> None:
+    f = lambda t: 1 - 3 * 2 * (t + 1) ** 2 - 4 * t
+    df = lambda t: -6 * 2 * (t + 1) - 4
+
+    x = random.random()
+    args = dict(x=x)
+    assert eq(f(X)(args), f(x))
+
+    grad = f(X).eval_grad(args)
+    assert eq(grad["x"], df(x))
 
 
 def test_ln() -> None:
     x = random.random()
     f = X.ln()
-    assert f(dict(x=x)) == math.log(x)
-    df = f.eval_grad(dict(x=x))
+    args = dict(x=x)
+    assert f(args) == math.log(x)
+    df = f.eval_grad(args)
     assert eq(df["x"], 1 / x)

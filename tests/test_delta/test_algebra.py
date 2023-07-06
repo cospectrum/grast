@@ -1,21 +1,29 @@
-from grast.delta import Add, OneHot
+from typing import Any, TypeVar
 
-from grast import one_hot
-from grast.delta.delta import Neg, Scale, Sub
+from grast import var
+from grast.delta import Add, OneHot
+from grast.delta.delta import Delta, Neg, Scale, Sub
 from grast.real import Var
 
 
-R1 = Var("r1")
-R2 = Var("r2")
-R3 = Var("r3")
-X = one_hot("x")
-Y = one_hot("y")
-Z = one_hot("z")
+T = TypeVar("T", bound=Any)
+
+
+def one_hot(key: str) -> Delta[T]:
+    return var(key).delta
+
+
+R1: Var[float] = Var("r1")
+R2: Var[float] = Var("r2")
+R3: Var[float] = Var("r3")
+X: Delta[float] = one_hot("x")
+Y: Delta[float] = one_hot("y")
+Z: Delta[float] = one_hot("z")
 
 
 def test_add() -> None:
     add = X.add(Y)
-    assert add == Add(X, OneHot(Var("y")))
+    assert add == Add(X, OneHot(Var("y")))  # type: ignore
     assert add.add(Z) == Add(add, Z)
     assert X.add(Y.neg()) == Sub(X, Y)
 
