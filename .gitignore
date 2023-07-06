@@ -163,3 +163,5 @@ cython_debug/
 
 examples
 !examples/main.py
+
+main.py

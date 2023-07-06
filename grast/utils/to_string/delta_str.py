@@ -4,7 +4,7 @@ from grast.delta import Delta as D
 from dataclasses import dataclass
 
 from .real_str import real_str
-from .brackets import brackets, is_atom
+from .utils import brackets, is_atom
 
 
 @dataclass
@@ -22,7 +22,7 @@ class DeltaStr:
                 return self.zero
 
             case d.OneHot(var):
-                return f"d{var.val}"
+                return f"d{var.key}"
 
             case d.Add(l, r):
                 return f"{cls(l)} + {cls(r)}"
@@ -40,8 +40,8 @@ class DeltaStr:
                 raise TypeError
 
 
-def delta_str(delta: D, with_brackets: bool = True) -> str:
+def delta_str(delta: D) -> str:
     s = str(DeltaStr(delta))
-    if with_brackets:
-        s = s if is_atom(delta) else brackets(s)
-    return s
+    if is_atom(delta):
+        return s
+    return brackets(s)

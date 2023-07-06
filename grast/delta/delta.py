@@ -11,22 +11,27 @@ __all__ = ["Delta", "Zero", "OneHot", "Add", "Neg", "Scale", "Sub"]
 T = TypeVar("T")
 
 
-class Delta:
-    def to_str(self) -> str:
+class Delta(Generic[T]):
+    def __call__(self, one: Real[T] | None = None) -> dict[str, Real[T]]:
+        import grast.grad as grad
+
+        return grad.Eval(one).grad(self)
+
+    def __str__(self) -> str:
         import grast.utils as utils
 
         return utils.to_str(self)
 
-    def scale(self, scalar: Real) -> Delta:
+    def scale(self, scalar: Real[T]) -> Delta[T]:
         return A().scale(scalar, self)
 
-    def neg(self) -> Delta:
+    def neg(self) -> Delta[T]:
         return A().neg(self)
 
-    def add(self, other: Delta) -> Delta:
+    def add(self, other: Delta[T]) -> Delta[T]:
         return A().add(self, other)
 
-    def sub(self, other: Delta) -> Delta:
+    def sub(self, other: Delta[T]) -> Delta[T]:
         return A().sub(self, other)
 
 
@@ -39,7 +44,7 @@ def A():
 D = Delta
 
 
-class Zero(D):
+class Zero(D[T]):
     _instance: Zero | None = None
 
     def __new__(cls) -> Zero:
@@ -52,28 +57,28 @@ class Zero(D):
 
 
 @dataclass
-class OneHot(D, Generic[T]):
+class OneHot(D[T]):
     var: Var[T]
 
 
 @dataclass
-class Add(D):
-    left: D
-    right: D
+class Add(D[T]):
+    left: D[T]
+    right: D[T]
 
 
 @dataclass
-class Scale(D):
-    real: Real
-    delta: D
+class Scale(D[T]):
+    real: Real[T]
+    delta: D[T]
 
 
 @dataclass
-class Neg(D):
-    delta: D
+class Neg(D[T]):
+    delta: D[T]
 
 
 @dataclass
-class Sub(D):
-    left: D
-    right: D
+class Sub(D[T]):
+    left: D[T]
+    right: D[T]

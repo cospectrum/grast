@@ -1,10 +1,13 @@
 import grast.real as re
-from .real import Real as R
+
+from typing import Generic
+
+from .real import T, Real as R
 
 
-class Algebra:
+class Algebra(Generic[T]):
     @classmethod
-    def add(cls, left: R, right: R) -> R:
+    def add(cls, left: R[T], right: R[T]) -> R[T]:
         match left, right:
             case re.Neg(l), re.Neg(r):
                 return cls.neg(cls.add(l, r))
@@ -15,7 +18,7 @@ class Algebra:
         return re.Add(left, right)
 
     @classmethod
-    def mul(cls, left: R, right: R) -> R:
+    def mul(cls, left: R[T], right: R[T]) -> R[T]:
         match left, right:
             case re.Inv(l), re.Inv(r):
                 return cls.inv(cls.mul(l, r))
@@ -26,7 +29,7 @@ class Algebra:
         return re.Mul(left, right)
 
     @classmethod
-    def div(cls, left: R, right: R) -> R:
+    def div(cls, left: R[T], right: R[T]) -> R[T]:
         match left, right:
             case re.Inv(l), re.Inv(r):
                 return cls.div(r, l)
@@ -37,7 +40,7 @@ class Algebra:
         return re.Div(left, right)
 
     @classmethod
-    def sub(cls, left: R, right: R) -> R:
+    def sub(cls, left: R[T], right: R[T]) -> R[T]:
         match left, right:
             case _, re.Neg(r):
                 return cls.add(left, r)
@@ -48,23 +51,23 @@ class Algebra:
         return re.Sub(left, right)
 
     @staticmethod
-    def neg(real: R) -> R:
+    def neg(real: R[T]) -> R[T]:
         match real:
             case re.Neg(r):
                 return r
         return re.Neg(real)
 
     @staticmethod
-    def inv(real: R) -> R:
+    def inv(real: R[T]) -> R[T]:
         match real:
             case re.Inv(r):
                 return r
         return re.Inv(real)
 
     @staticmethod
-    def pow(left: R, right: R) -> R:
+    def pow(left: R[T], right: R[T]) -> R[T]:
         return re.Pow(left, right)
 
     @staticmethod
-    def ln(real: R) -> R:
+    def ln(real: R[T]) -> R[T]:
         return re.Ln(real)

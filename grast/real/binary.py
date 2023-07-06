@@ -1,21 +1,21 @@
-from .real import BinaryFn as BF
+from .real import T, BinaryFn
 
 
-class Add(BF):
+class Add(BinaryFn[T]):
     pass
 
 
-class Sub(BF):
+class Sub(BinaryFn[T]):
     pass
 
 
-class Mul(BF):
+class Mul(BinaryFn[T]):
     pass
 
 
-class Div(BF):
+class Div(BinaryFn[T]):
     pass
 
 
-class Pow(BF):
+class Pow(BinaryFn[T]):
     pass

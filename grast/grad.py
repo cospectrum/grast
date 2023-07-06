@@ -1,20 +1,20 @@
 import grast.delta as de
 import grast.real as re
 
-from .real import Algebra as ra
+from typing import Any, Callable, Generic, TypeVar
 
-from typing import Callable
 
+T = TypeVar("T", bound=Any)
 
 R = re.Real
 D = de.Delta
-Grad = dict[str, R]
+Grad = dict[str, R[T]]
 
 
-def add_at(grad: Grad, var: re.Var, real: R) -> None:
-    key = var.val
+def add_at(grad: Grad[T], var: re.Var[T], real: R[T]) -> None:
+    key = var.key
     if key in grad:
-        grad[key] = ra.add(grad[key], real)
+        grad[key] = grad[key].add(real)
     else:
         grad[key] = real
 
@@ -22,20 +22,18 @@ def add_at(grad: Grad, var: re.Var, real: R) -> None:
 One = re.Const(1)
 
 
-class Eval:
-    real: R
+class Eval(Generic[T]):
+    real: R[T]
 
-    def __init__(self, real: R | None = None) -> None:
-        if real is None:
-            real = One
-        self.real = real
+    def __init__(self, real: R[T] | None = None) -> None:
+        self.real = One if real is None else real  # type: ignore
 
-    def grad(self, expression: D) -> Grad:
-        g: Grad = dict()
+    def grad(self, expression: D[T]) -> Grad[T]:
+        g: Grad[T] = dict()
         return self(expression)(g)
 
-    def __call__(self, expression: D) -> Callable[[Grad], Grad]:
-        def callback(grad: Grad) -> Grad:
+    def __call__(self, expression: D[T]) -> Callable[[Grad[T]], Grad[T]]:
+        def callback(grad: Grad[T]) -> Grad[T]:
             match expression:
                 case de.OneHot(var):
                     add_at(grad, var, self.real)
@@ -45,19 +43,23 @@ class Eval:
                         real = scalar
                     elif scalar == One:
                         real = self.real
+                    elif self.real == One.neg():
+                        real = scalar.neg()
+                    elif scalar == One.neg():
+                        real = self.real.neg()
                     else:
-                        real = ra.mul(self.real, scalar)
+                        real = self.real.mul(scalar)
                     Eval(real)(expr)(grad)
 
                 case de.Neg(expr):
-                    real = ra.neg(self.real)
+                    real = self.real.neg()
                     Eval(real)(expr)(grad)
 
                 case de.Add(left, right):
                     self(left)(self(right)(grad))
 
                 case de.Sub(left, right):
-                    self(left)(self(de.Neg(right))(grad))
+                    self(left)(self(right.neg())(grad))
 
                 case de.Zero():
                     pass

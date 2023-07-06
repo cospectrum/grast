@@ -1,7 +1,32 @@
 # grast
 
-Experimental automatic differentiation library for Python
+Automatic differentiation of generic fields for Python
 
+## Install
+
+```sh
+pip install grast
+```
+
+## Usage
+
+```py
+from grast import var
+
+x = var('x')
+y = var('y')
+
+f = x/y + y**x
+df = f.grad()
+
+df_dx = df['x']
+df_dy = df['y']
+
+args = dict(x=3, y=-5)
+f(args)
+df_dx(args)
+df_dy(args)
+```
 
 ## References
 

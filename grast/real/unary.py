@@ -1,13 +1,13 @@
-from .real import UnaryFn as UF
+from .real import T, UnaryFn
 
 
-class Neg(UF):
+class Neg(UnaryFn[T]):
     pass
 
 
-class Inv(UF):
+class Inv(UnaryFn[T]):
     pass
 
 
-class Ln(UF):
+class Ln(UnaryFn[T]):
     pass

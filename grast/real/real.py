@@ -2,6 +2,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Generic, TypeVar
 
+from grast.cfg import Cfg
+
 
 __all__ = [
     "Real",
@@ -16,39 +18,41 @@ __all__ = [
 T = TypeVar("T")
 
 
-class Real:
-    def to_str(self) -> str:
+class Real(Generic[T]):
+    def __str__(self) -> str:
         import grast.utils as utils
 
         return utils.to_str(self)
 
-    def __call__(self, **kwargs: float) -> float:
+    def __call__(
+        self, args: dict[str, T] | None = None, cfg: Cfg[T] | None = None
+    ) -> T:
         import grast.forward as forward
 
-        return forward.Forward(kwargs)(self)
+        return forward.Forward(args, cfg=cfg)(self)
 
-    def add(self, other: Real) -> Real:
+    def add(self, other: Real[T]) -> Real[T]:
         return A().add(self, other)
 
-    def mul(self, other: Real) -> Real:
+    def mul(self, other: Real[T]) -> Real[T]:
         return A().mul(self, other)
 
-    def sub(self, other: Real) -> Real:
+    def sub(self, other: Real[T]) -> Real[T]:
         return A().sub(self, other)
 
-    def neg(self) -> Real:
+    def neg(self) -> Real[T]:
         return A().neg(self)
 
-    def inv(self) -> Real:
+    def inv(self) -> Real[T]:
         return A().inv(self)
 
-    def div(self, other: Real) -> Real:
+    def div(self, other: Real[T]) -> Real[T]:
         return A().div(self, other)
 
-    def pow(self, other: Real) -> Real:
+    def pow(self, other: Real[T]) -> Real[T]:
         return A().pow(self, other)
 
-    def ln(self) -> Real:
+    def ln(self) -> Real[T]:
         return A().ln(self)
 
 
@@ -61,25 +65,26 @@ def A():
 R = Real
 
 
+class Value(R[T]):
+    pass
+
+
 @dataclass
-class Value(R, Generic[T]):
+class Var(Value[T]):
+    key: str
+
+
+@dataclass
+class Const(Value[T]):
     val: T
 
 
-class Var(Value[T]):
-    pass
-
-
-class Const(Value[T]):
-    pass
+@dataclass
+class UnaryFn(R[T]):
+    arg: R[T]
 
 
 @dataclass
-class UnaryFn(R):
-    arg: R
-
-
-@dataclass
-class BinaryFn(R):
-    left: R
-    right: R
+class BinaryFn(R[T]):
+    left: R[T]
+    right: R[T]

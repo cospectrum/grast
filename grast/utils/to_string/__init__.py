@@ -1,11 +1,11 @@
 from grast.delta import Delta
 from grast.real import Real
 
-from .real_str import real_str
-from .delta_str import delta_str
+from .real_str import RealStr
+from .delta_str import DeltaStr
 
 
 def to_str(number: Real | Delta) -> str:
     if isinstance(number, Real):
-        return real_str(number, False)
-    return delta_str(number, False)
+        return str(RealStr(number))
+    return str(DeltaStr((number)))

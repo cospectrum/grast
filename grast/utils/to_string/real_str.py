@@ -5,7 +5,7 @@ import grast.real.binary as bf
 from grast.real import Real as R
 from dataclasses import dataclass
 
-from .brackets import brackets, is_atom
+from .utils import brackets, is_primitive_fn
 
 
 @dataclass
@@ -16,6 +16,7 @@ class RealStr:
     def unary_fn(cls, expr: R) -> str:
         assert isinstance(expr, re.UnaryFn)
         arg = expr.arg
+
         match type(expr):
             case uf.Neg:
                 return f"-{real_str(arg)}"
@@ -33,6 +34,7 @@ class RealStr:
         assert isinstance(expr, re.BinaryFn)
         left = expr.left
         right = expr.right
+
         match type(expr):
             case bf.Add:
                 return f"{cls(left)} + {cls(right)}"
@@ -42,6 +44,8 @@ class RealStr:
                 return f"{cls(left)} - {real_str(right)}"
             case bf.Div:
                 return f"{real_str(left)} / {real_str(right)}"
+            case bf.Pow:
+                return f"{real_str(left)} ^ {real_str(right)}"
 
         name = expr.__class__.__name__.lower()
         return f"{name}({cls(left)}, {cls(right)})"
@@ -54,13 +58,15 @@ class RealStr:
                 return cls.unary_fn(expr)
             case re.BinaryFn(_, _):
                 return cls.binary_fn(expr)
-            case re.Value(val):
+            case re.Const(val):
                 return f"{val}"
+            case re.Var(key):
+                return f"{key}"
         raise TypeError
 
 
-def real_str(real: R, with_brackets: bool = True) -> str:
+def real_str(real: R) -> str:
     s = str(RealStr(real))
-    if with_brackets:
-        s = s if is_atom(real) else brackets(s)
+    if is_primitive_fn(real):
+        return brackets(s)
     return s

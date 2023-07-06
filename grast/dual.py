@@ -1,72 +1,82 @@
 from __future__ import annotations
-
 import grast.real as re
 
-from typing import Any
+from typing import Generic, TypeVar
 from dataclasses import dataclass
 
-from .real import Real as R
+
+from .cfg import Cfg
+from .real import Real
 from .delta import (
-    Delta as D,
+    Delta,
     OneHot,
     Zero,
 )
 
-from .eval_grad import Grad, Eval
+
+T = TypeVar("T")
+Args = dict[str, T]
 
 
 @dataclass
-class Dual:
-    real: R
-    delta: D
+class Dual(Generic[T]):
+    real: Real[T]
+    delta: Delta[T]
 
-    def __call__(self, **kwargs: float) -> float:
-        return self.real(**kwargs)
+    def __call__(
+        self,
+        args: Args[T] | None = None,
+        cfg: Cfg[T] | None = None,
+    ) -> T:
+        return self.real(args, cfg)
 
-    def grad(self, one: R | None = None) -> Grad:
-        delta = self.delta
-        return Eval(one).grad(delta)
+    def grad(self, one: Real[T] | None = None) -> dict[str, Real[T]]:
+        return self.delta(one)
 
-    def eval_grad(self, **kwargs: float) -> dict[str, float]:
+    def eval_grad(
+        self,
+        args: Args[T] | None = None,
+        cfg: Cfg[T] | None = None,
+    ) -> Args[T]:
         grad = self.grad()
-        return {k: grad[k](**kwargs) for k in grad}
+        return {k: v(args, cfg=cfg) for k, v in grad.items()}
 
-    def to_str(self) -> str:
-        return self.real.to_str()
+    def __str__(self) -> str:
+        return str(self.real)
 
-    def __add__(self, other: Dual | Any) -> Dual:
+    def __add__(self, other: Dual[T] | T) -> Dual[T]:
         other = wrap(other)
         a, b = self.tup
         c, d = other.tup
         return Dual(a.add(c), b.add(d))
 
-    def __radd__(self, other: Dual | Any) -> Dual:
+    def __radd__(self, other: Dual[T] | T) -> Dual[T]:
         return wrap(other) + self
 
-    def __sub__(self, other: Dual | Any) -> Dual:
+    def __sub__(self, other: Dual[T] | T) -> Dual[T]:
         other = wrap(other)
         a, b = self.tup
         c, d = other.tup
         return Dual(a.sub(c), b.sub(d))
 
-    def __rsub__(self, other: Dual | Any) -> Dual:
+    def __rsub__(self, other: Dual[T] | T) -> Dual[T]:
         return wrap(other) - self
 
-    def __neg__(self) -> Dual:
+    def __neg__(self) -> Dual[T]:
         a, b = self.tup
         return Dual(a.neg(), b.neg())
 
-    def __mul__(self, other: Dual | Any) -> Dual:
+    def __mul__(self, other: Dual[T] | T) -> Dual[T]:
         other = wrap(other)
         a, b = self.tup
         c, d = other.tup
         delta = d.scale(a).add(b.scale(c))
         return Dual(a.mul(c), delta)
 
-    def __rmul__(self, other: Dual | Any) -> Dual:
+    def __rmul__(self, other: Dual[T] | T) -> Dual[T]:
         return wrap(other) * self
 
-    def __truediv__(self, other: Dual | Any) -> Dual:
+    def __truediv__(self, other: Dual[T] | T) -> Dual[T]:
         other = wrap(other)
         a, b = self.tup
         c, d = other.tup
@@ -74,10 +84,10 @@ class Dual:
         second = d.scale(a).scale(c.mul(c).inv())
         return Dual(a.div(c), first.sub(second))
 
-    def __rtruediv__(self, other: Dual | Any) -> Dual:
+    def __rtruediv__(self, other: Dual[T] | T) -> Dual[T]:
         return wrap(other) / self
 
-    def __pow__(self, other: Dual | Any) -> Dual:
+    def __pow__(self, other: Dual[T] | T) -> Dual[T]:
         other = wrap(other)
         a, b = self.tup
         c, d = other.tup
@@ -86,31 +96,31 @@ class Dual:
         right = d.scale(val.mul(a.ln()))
         return Dual(val, left.add(right))
 
-    def __rpow__(self, other: Dual | Any) -> Dual:
+    def __rpow__(self, other: Dual[T] | T) -> Dual[T]:
         return wrap(other) ** self
 
-    def ln(self) -> Dual:
+    def ln(self) -> Dual[T]:
         a, b = self.tup
         return Dual(a.ln(), b.scale(a.inv()))
 
     @property
-    def tup(self) -> tuple[R, D]:
+    def tup(self) -> tuple[Real[T], Delta[T]]:
         return self.real, self.delta
 
 
-def wrap(val: Dual | Any) -> Dual:
+def wrap(val: Dual[T] | T) -> Dual[T]:
     if isinstance(val, Dual):
         return val
     return const(val)
 
 
-def var(key: str) -> Dual:
-    real = re.Var(val=key)
-    delta = OneHot(var=real)
+def var(key: str) -> Dual[T]:
+    real: re.Var[T] = re.Var(key=key)
+    delta: OneHot[T] = OneHot(var=real)
     return Dual(real, delta)
 
 
-def const(val: Any) -> Dual:
+def const(val: T) -> Dual[T]:
     real = re.Const(val=val)
     delta = Zero()
     return Dual(real, delta)

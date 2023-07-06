@@ -17,4 +17,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
-ignore = ["F403"]
+ignore = ["F403", "E731"]

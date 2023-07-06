@@ -1,23 +1,39 @@
-import math
+from __future__ import annotations
+
 import grast.real as re
 
+from typing import Any, Generic, TypeVar
 from grast.real import Real
-from dataclasses import dataclass
+
+from .cfg import Cfg
 
 
-T = float
+__all__ = [
+    "Forward",
+]
+
+T = TypeVar("T", bound=Any)
 
 
-@dataclass
-class Forward:
-    kwargs: dict[str, T]
+class Forward(Generic[T]):
+    args: dict[str, T]
+    cfg: Cfg[T]
 
-    def __call__(self, real: Real) -> T:
+    def __init__(
+        self,
+        args: dict[str, T] | None = None,
+        cfg: Cfg[T] | None = None,
+    ) -> None:
+        self.args = dict() if args is None else args
+        self.cfg = Cfg.float() if cfg is None else cfg  # type: ignore
+
+    def __call__(self, real: Real[T]) -> T:
+        cfg = self.cfg
         match real:
             case re.Const(val):
                 return val
             case re.Var(key):
-                return self.kwargs[key]
+                return self.args[key]
             case re.Add(left, right):
                 return self(left) + self(right)
             case re.Sub(left, right):
@@ -29,9 +45,9 @@ class Forward:
             case re.Neg(arg):
                 return -self(arg)
             case re.Inv(arg):
-                return 1 / self(arg)
+                return cfg.inv(self(arg))
             case re.Pow(left, right):
                 return self(left) ** self(right)
             case re.Ln(arg):
-                return math.log(self(arg))
+                return cfg.ln(self(arg))
         raise TypeError
