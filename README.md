@@ -33,7 +33,6 @@ args = dict(x=-3, y=5)
 f(args)
 df_dx(args)
 df_dy(args)
-# or just f.eval_grad(args) to evaluate the entire grad
 ```
 
 View in symbolic format
