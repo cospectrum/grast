@@ -161,7 +161,4 @@ cython_debug/
 
 .DS_Store
 
-examples
-!examples/linear_regression.py
-
 main.py
