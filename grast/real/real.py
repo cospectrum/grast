@@ -46,6 +46,9 @@ class Real(Generic[T]):
     def inv(self) -> Real[T]:
         return A().inv(self)
 
+    def abs(self) -> Real[T]:
+        return A().abs(self)
+
     def div(self, other: Real[T]) -> Real[T]:
         return A().div(self, other)
 
@@ -54,6 +57,18 @@ class Real(Generic[T]):
 
     def ln(self) -> Real[T]:
         return A().ln(self)
+
+    def exp(self) -> Real[T]:
+        return A().exp(self)
+
+    def cos(self) -> Real[T]:
+        return A().cos(self)
+
+    def sin(self) -> Real[T]:
+        return A().sin(self)
+
+    def tan(self) -> Real[T]:
+        return A().tan(self)
 
 
 def A():

@@ -99,13 +99,42 @@ class Dual(Generic[T]):
     def __rpow__(self, other: Dual[T] | T) -> Dual[T]:
         return wrap(other) ** self
 
-    def ln(self) -> Dual[T]:
+    def __abs__(self) -> Dual[T]:
         a, b = self.tup
-        return Dual(a.ln(), b.scale(a.inv()))
+        val = a.abs()
+        delta = b.scale(a.div(val))
+        return Dual(val, delta)
 
     @property
     def tup(self) -> tuple[Real[T], Delta[T]]:
         return self.real, self.delta
+
+    def ln(self) -> Dual[T]:
+        a, b = self.tup
+        return Dual(a.ln(), b.scale(a.inv()))
+
+    def exp(self) -> Dual[T]:
+        a, b = self.tup
+        val = a.exp()
+        return Dual(val, b.scale(val))
+
+    def cos(self) -> Dual[T]:
+        a, b = self.tup
+        val = a.cos()
+        delta = b.scale(a.sin().neg())
+        return Dual(val, delta)
+
+    def sin(self) -> Dual[T]:
+        a, b = self.tup
+        val = a.sin()
+        delta = b.scale(a.cos())
+        return Dual(val, delta)
+
+    def tan(self) -> Dual[T]:
+        a, b = self.tup
+        cos = a.cos()
+        delta = b.scale(cos.mul(cos).inv())
+        return Dual(a.tan(), delta)
 
 
 def wrap(val: Dual[T] | T) -> Dual[T]:

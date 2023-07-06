@@ -42,12 +42,22 @@ class Forward(Generic[T]):
                 return self(left) * self(right)
             case re.Div(left, right):
                 return self(left) / self(right)
-            case re.Neg(arg):
-                return -self(arg)
-            case re.Inv(arg):
-                return cfg.inv(self(arg))
             case re.Pow(left, right):
                 return self(left) ** self(right)
+            case re.Neg(arg):
+                return -self(arg)
+            case re.Abs(arg):
+                return abs(self(arg))
+            case re.Inv(arg):
+                return cfg.inv(self(arg))
             case re.Ln(arg):
                 return cfg.ln(self(arg))
+            case re.Exp(arg):
+                return cfg.exp(self(arg))
+            case re.Cos(arg):
+                return cfg.cos(self(arg))
+            case re.Sin(arg):
+                return cfg.sin(self(arg))
+            case re.Tan(arg):
+                return cfg.tan(self(arg))
         raise TypeError

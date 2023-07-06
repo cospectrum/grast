@@ -10,6 +10,10 @@ X: Dual[float] = var("x")
 Y: Dual[float] = var("y")
 
 
+def rand() -> float:
+    return random.random()
+
+
 def eq(a: Any, b: Any) -> bool:
     assert isinstance(a, float)
     assert isinstance(b, float)
@@ -168,3 +172,92 @@ def test_ln() -> None:
     assert f(args) == math.log(x)
     df = f.eval_grad(args)
     assert eq(df["x"], 1 / x)
+
+
+def test_sin() -> None:
+    a = rand()
+    sin_a = math.sin(a)
+    cos_a = math.cos(a)
+    args = dict(x=a)
+
+    f = X.sin()
+    val = f(args)
+    d = f.eval_grad(args)
+    assert val == sin_a
+    assert d["x"] == cos_a
+
+    sin_sin_a = math.sin(sin_a)
+    cos_sin_a = math.cos(sin_a)
+
+    f = X.sin().cos()
+    val = f(args)
+    d = f.eval_grad(args)
+    assert eq(val, cos_sin_a)
+    assert eq(d["x"], sin_sin_a * (-cos_a))
+
+    f = X.sin().sin()
+    val = f(args)
+    d = f.eval_grad(args)
+    assert eq(val, sin_sin_a)
+    assert eq(d["x"], cos_a * cos_sin_a)
+
+
+def test_cos() -> None:
+    a = rand()
+    cos_a = math.cos(a)
+    sin_a = math.sin(a)
+    args = dict(x=a)
+
+    val = X.cos()(args)
+    d = X.cos().eval_grad(args)
+
+    assert val == cos_a
+    assert d["x"] == -sin_a
+
+    val = X.cos().cos()(args)
+    d = X.cos().cos().eval_grad(args)
+    assert val == math.cos(cos_a)
+    assert eq(d["x"], sin_a * math.sin(cos_a))
+
+
+def test_exp() -> None:
+    a = rand()
+    exp_a = math.exp(a)
+    args = dict(x=a)
+
+    f = X.exp()
+    d = f.eval_grad(args)
+    assert f(args) == exp_a
+    assert d["x"] == exp_a
+
+    f = f.exp()
+    d = f.eval_grad(args)
+    assert f(args) == math.exp(exp_a)
+    assert eq(d["x"], math.exp(a + exp_a))
+
+
+def test_abs() -> None:
+    a = rand()
+    args = dict(x=a)
+    f = abs(X)
+    assert f(args) == abs(a)
+    df = f.grad()
+    assert eq(df["x"](args), a / abs(a))
+
+
+def test_tan() -> None:
+    a = rand()
+    tg_a = math.sin(a) / math.cos(a)
+    sec_a = 1 / math.cos(a)
+    args = dict(x=a)
+
+    f = X.tan()
+    val = f(args)
+    d = f.eval_grad(args)
+    assert eq(val, tg_a)
+    assert eq(d["x"], sec_a**2)
+
+    tan = X.sin() / X.cos()
+    dtan = tan.eval_grad(args)
+    assert eq(tan(args), val)
+    assert eq(dtan["x"], d["x"])

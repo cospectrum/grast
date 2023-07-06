@@ -69,5 +69,28 @@ class Algebra(Generic[T]):
         return re.Pow(left, right)
 
     @staticmethod
+    def abs(real: R[T]) -> R[T]:
+        match real:
+            case re.Abs(_):
+                return real
+        return re.Abs(real)
+
+    @staticmethod
     def ln(real: R[T]) -> R[T]:
         return re.Ln(real)
+
+    @staticmethod
+    def exp(real: R[T]) -> R[T]:
+        return re.Exp(real)
+
+    @staticmethod
+    def cos(real: R[T]) -> R[T]:
+        return re.Cos(real)
+
+    @staticmethod
+    def sin(real: R[T]) -> R[T]:
+        return re.Sin(real)
+
+    @staticmethod
+    def tan(real: R[T]) -> R[T]:
+        return re.Tan(real)
