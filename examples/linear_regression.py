@@ -7,7 +7,7 @@ from grast import var, Dual
 
 
 def rand() -> float:
-    return random.uniform(0, math.pi)
+    return random.uniform(0, math.pi / 2)
 
 
 def unknown_fn(x: float) -> float:
@@ -19,7 +19,7 @@ def main() -> None:
     X: Dual = var("x")
     Y: Dual = var("y")  # right answer
 
-    f: Dual = sum(var(k) * X**i for i, k in enumerate(param_keys))  # type: ignore
+    f: Dual = sum(var(k) * X for k in enumerate(param_keys))  # type: ignore
     loss = (f - Y) ** 2
     dl = loss.grad()
 
