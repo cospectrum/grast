@@ -1,8 +1,10 @@
 # grast
 
-Automatic differentiation of generic fields for Python
+Lazy automatic differentiation for Python
 
 ## Install
+
+Requires python >= 3.10
 
 ```sh
 pip install grast
@@ -16,8 +18,10 @@ from grast import var
 
 x = var('x')
 y = var('y')
+z = var('z').freeze()  # do not compute derivative
 
-f = x/y + y**x
+h = x/y + y**x
+f = z * h + 3
 ```
 
 Get gradient
@@ -29,7 +33,7 @@ df_dy = df['y']
 
 Evaluate with specific arguments
 ```py
-args = dict(x=-3, y=5)
+args = dict(x=-3, y=5, z=2)
 f(args)
 df_dx(args)
 df_dy(args)

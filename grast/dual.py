@@ -41,6 +41,9 @@ class Dual(Generic[T]):
         grad = self.grad()
         return {k: v(args, cfg=cfg) for k, v in grad.items()}
 
+    def freeze(self) -> Dual[T]:
+        return Dual(self.real, Zero())
+
     def __str__(self) -> str:
         return str(self.real)
 
@@ -143,9 +146,9 @@ def wrap(val: Dual[T] | T) -> Dual[T]:
     return const(val)
 
 
-def var(key: str) -> Dual[T]:
-    real: re.Var[T] = re.Var(key=key)
-    delta: OneHot[T] = OneHot(var=real)
+def var(key: str, requires_grad: bool = True) -> Dual:
+    real: re.Var = re.Var(key=key)
+    delta = OneHot(var=real) if requires_grad else Zero()
     return Dual(real, delta)
 
 

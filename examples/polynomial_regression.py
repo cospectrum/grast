@@ -3,7 +3,9 @@ import math
 
 import matplotlib.pyplot as plt
 
-from grast import var, Dual
+from grast import var
+
+from grast import Dual
 
 
 def rand() -> float:
@@ -17,8 +19,8 @@ def unknown_fn(x: float) -> float:
 def main() -> None:
     n = 5
     param_keys = [f"w_{i}" for i in range(n)]
-    X: Dual = var("x")
-    Y: Dual = var("y")  # right answer
+    X = var("x").freeze()
+    Y = var("y").freeze()  # right answer
 
     f: Dual = sum(var(k) * X**i for i, k in enumerate(param_keys))  # type: ignore
     loss = (f - Y) ** 2

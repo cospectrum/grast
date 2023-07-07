@@ -3,7 +3,7 @@ import math
 
 import matplotlib.pyplot as plt
 
-from grast import var, Dual
+from grast import var
 
 
 def rand() -> float:
@@ -17,12 +17,13 @@ def unknown_fn(x: float) -> float:
 def main() -> None:
     ws = ["w1", "w2", "w3", "w4"]
     param_keys = ws + ["bias"]
-    X: Dual = var("x")
-    Y: Dual = var("y")  # right answer
+    X = var("x").freeze()
+    Y = var("y").freeze()  # right answer
 
-    f: Dual = var("bias") + sum(var(k) * X for k in ws)  # type: ignore
+    f = var("bias") + sum(var(k) * X for k in ws)
     loss = (f - Y) ** 2
     dl = loss.grad()
+    print(dl.keys())
 
     args = {k: 0.0 for k in param_keys}
     lr = 3e-4
