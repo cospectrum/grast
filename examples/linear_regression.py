@@ -15,11 +15,12 @@ def unknown_fn(x: float) -> float:
 
 
 def main() -> None:
-    param_keys = ["bias", "w1", "w2", "w3", "w4"]
+    ws = ["w1", "w2", "w3", "w4"]
+    param_keys = ws + ["bias"]
     X: Dual = var("x")
     Y: Dual = var("y")  # right answer
 
-    f: Dual = sum(var(k) * X for k in enumerate(param_keys))  # type: ignore
+    f: Dual = var("bias") + sum(var(k) * X for k in ws)  # type: ignore
     loss = (f - Y) ** 2
     dl = loss.grad()
 
